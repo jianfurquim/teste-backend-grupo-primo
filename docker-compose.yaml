@@ -1,0 +1,16 @@
+networks:
+  grupo_primo_network:
+    name: grupo_primo_network
+    
+services:
+  grupo-primo-postgres:
+    image: bitnami/postgresql
+    container_name: grupo-primo-postgres
+    ports:
+      - 15432:5432
+    environment:
+      - POSTGRESQL_USERNAME=docker
+      - POSTGRESQL_PASSWORD=docker
+      - POSTGRESQL_DATABASE=grupoprimo
+    networks:
+      - grupo_primo_network
