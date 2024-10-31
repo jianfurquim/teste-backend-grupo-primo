@@ -24,9 +24,9 @@ export async function register(request: FastifyRequest, replay: FastifyReply) {
     })
   } catch (err) {
     if (err instanceof UserAlreadyExistsError) {
-        return replay.status(409).send({message: err.message })
+      return replay.status(409).send({ message: err.message })
     }
-    
+
     return replay.status(500).send({ message: 'Internal server error.' })
   }
 
