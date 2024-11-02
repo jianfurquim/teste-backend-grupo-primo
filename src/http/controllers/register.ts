@@ -27,7 +27,7 @@ export async function register(request: FastifyRequest, replay: FastifyReply) {
       return replay.status(409).send({ message: err.message })
     }
 
-    return replay.status(500).send({ message: 'Internal server error.' })
+    throw err
   }
 
   return replay.status(201).send({
