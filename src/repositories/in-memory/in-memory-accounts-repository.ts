@@ -27,4 +27,12 @@ export class InMemoryAccountsRepository implements AccountsRepository {
 
     return account
   }
+
+  async delete(id: string) {
+    const accountIndex = this.items.findIndex((item) => item.id === id)
+
+    const [deletedAccount] = this.items.splice(accountIndex, 1)
+
+    return deletedAccount
+  }
 }

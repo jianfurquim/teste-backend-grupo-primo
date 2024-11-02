@@ -48,7 +48,7 @@ describe('Create Accounts Service', () => {
     ).rejects.toBeInstanceOf(InvalidBalanceValueError)
   })
 
-  it('should not be able to to create an account without passing the id user', async () => {
+  it('should not be able to create an account without passing the id user', async () => {
     const user_id = 'id_do_not_exists'
 
     await expect(() =>
@@ -56,6 +56,36 @@ describe('Create Accounts Service', () => {
         name: 'Bank Account',
         balance: 0.0,
         userId: user_id,
+      }),
+    ).rejects.toBeInstanceOf(ResourceNotFoundError)
+  })
+
+  it('should be able to delete account', async () => {
+    const user = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@gmail.com',
+      password: '123456',
+    })
+
+    const { account } = await sut.create({
+      name: 'Bank Account',
+      balance: 0.0,
+      userId: user.id,
+    })
+
+    await sut.delete({
+      accountId: account.id,
+    })
+
+    expect(await accountRepository.findById(account.id)).toBeNull()
+  })
+
+  it('should be not able to delete account without passing the id account', async () => {
+    const account_id = 'id_do_not_exists'
+
+    await expect(() =>
+      sut.delete({
+        accountId: account_id,
       }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError)
   })

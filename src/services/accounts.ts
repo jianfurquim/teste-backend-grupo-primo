@@ -14,6 +14,10 @@ interface CreateAccountsServiceResponse {
   account: Account
 }
 
+interface DeleteAccountsServiceRequest {
+  accountId: string
+}
+
 export class AccountsService {
   constructor(
     private accountsRepository: AccountsRepository,
@@ -43,6 +47,20 @@ export class AccountsService {
 
     return {
       account,
+    }
+  }
+
+  async delete({ accountId }: DeleteAccountsServiceRequest) {
+    const account = await this.accountsRepository.findById(accountId)
+
+    if (!account) {
+      throw new ResourceNotFoundError()
+    }
+
+    const deleted_account = await this.accountsRepository.delete(account.id)
+
+    return {
+      deleted_account,
     }
   }
 }

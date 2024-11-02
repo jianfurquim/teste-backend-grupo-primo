@@ -20,4 +20,14 @@ export class PrismaAccountsRepository implements AccountsRepository {
 
     return account
   }
+
+  async delete(id: string) {
+    const account = await prisma.account.delete({
+      where: {
+        id,
+      },
+    })
+
+    return account
+  }
 }
