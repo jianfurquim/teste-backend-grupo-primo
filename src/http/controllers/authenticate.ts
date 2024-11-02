@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { z } from 'zod'
 import { InvalidCredentialsError } from '../../services/errors/invalid-credentials-error'
-import { makeAuthenticateService } from '../../services/factories/make-authenticate-service'
+import { makeUsersService } from '../../services/factories/make-users-service'
 
 export async function authenticate(
   request: FastifyRequest,
@@ -15,9 +15,9 @@ export async function authenticate(
   const { email, password } = authenticateBodySchema.parse(request.body)
 
   try {
-    const authenticateService = makeAuthenticateService()
+    const usersService = makeUsersService()
 
-    const { user } = await authenticateService.execute({
+    const { user } = await usersService.authenticate({
       email,
       password,
     })
