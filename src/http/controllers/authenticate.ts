@@ -17,19 +17,26 @@ export async function authenticate(
   try {
     const authenticateService = makeAuthenticateService()
 
-    await authenticateService.execute({
+    const { user } = await authenticateService.execute({
       email,
       password,
     })
+
+    return replay.status(202).send({
+      message: 'User authenticated with success.',
+      issues: {
+        user: user.name,
+        id: user.id,
+      },
+    })
   } catch (err) {
     if (err instanceof InvalidCredentialsError) {
-      return replay.status(400).send({ message: err.message })
+      return replay.status(400).send({
+        message: err.message,
+        issues: {},
+      })
     }
 
     throw err
   }
-
-  return replay.status(200).send({
-    detail: 'User authenticated success.',
-  })
 }

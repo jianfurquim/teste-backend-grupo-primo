@@ -15,20 +15,24 @@ export async function register(request: FastifyRequest, replay: FastifyReply) {
   try {
     const registerService = makeRegisterService()
 
-    await registerService.execute({
+    const { user } = await registerService.execute({
       name,
       email,
       password,
     })
+
+    return replay.status(202).send({
+      message: 'User created with success.',
+      issues: {
+        user: user.name,
+        id: user.id,
+      },
+    })
   } catch (err) {
     if (err instanceof UserAlreadyExistsError) {
-      return replay.status(409).send({ message: err.message })
+      return replay.status(409).send({ message: err.message, issues: {} })
     }
 
     throw err
   }
-
-  return replay.status(201).send({
-    detail: 'User created success.',
-  })
 }
