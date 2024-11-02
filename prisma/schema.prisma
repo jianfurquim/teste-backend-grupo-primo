@@ -25,6 +25,7 @@ model User {
 
 model Account {
   id           String        @id @default(uuid())
+  name         String?
   balance      Float         @default(0)
   userId       String
   user         User          @relation(fields: [userId], references: [id])

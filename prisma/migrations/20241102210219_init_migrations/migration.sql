@@ -14,6 +14,7 @@ CREATE TABLE "users" (
 -- CreateTable
 CREATE TABLE "accounts" (
     "id" TEXT NOT NULL,
+    "name" TEXT,
     "balance" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "userId" TEXT NOT NULL,
 
