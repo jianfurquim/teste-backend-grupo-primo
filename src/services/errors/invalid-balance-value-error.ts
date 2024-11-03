@@ -1,5 +1,5 @@
 export class InvalidBalanceValueError extends Error {
   constructor() {
-    super('Invalid credentials.')
+    super('Unable to create account with negative balance.')
   }
 }
