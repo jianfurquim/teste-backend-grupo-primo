@@ -5,7 +5,7 @@ import { ResourceNotFoundError } from './errors/resource-not-found-error'
 import { InvalidBalanceValueError } from './errors/invalid-balance-value-error'
 
 interface CreateAccountsServiceRequest {
-  id: string
+  id?: string
   name: string
   balance: number
   userId: string
