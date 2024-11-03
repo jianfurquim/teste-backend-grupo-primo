@@ -24,6 +24,7 @@ describe('Create Accounts Service', () => {
     })
 
     const { account } = await sut.create({
+      id: 'account-1',
       name: 'Bank Account',
       balance: 0.0,
       userId: user.id,
@@ -41,6 +42,7 @@ describe('Create Accounts Service', () => {
 
     await expect(() =>
       sut.create({
+        id: 'account-1',
         name: 'Bank Account',
         balance: -5.0,
         userId: user.id,
@@ -53,6 +55,7 @@ describe('Create Accounts Service', () => {
 
     await expect(() =>
       sut.create({
+        id: 'account-1',
         name: 'Bank Account',
         balance: 0.0,
         userId: user_id,
@@ -68,6 +71,7 @@ describe('Create Accounts Service', () => {
     })
 
     const { account } = await sut.create({
+      id: 'account-1',
       name: 'Bank Account',
       balance: 0.0,
       userId: user.id,
@@ -80,7 +84,7 @@ describe('Create Accounts Service', () => {
     expect(await accountRepository.findById(account.id)).toBeNull()
   })
 
-  it('should be not able to delete account without passing the id account', async () => {
+  it('should be not able to delete an account without passing the id account', async () => {
     const account_id = 'id_do_not_exists'
 
     await expect(() =>
@@ -88,5 +92,72 @@ describe('Create Accounts Service', () => {
         accountId: account_id,
       }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError)
+  })
+
+  it('should be able to return a accounts list', async () => {
+    const user = await usersRepository.create({
+      id: 'user-1',
+      name: 'John Doe',
+      email: 'johndoe@gmail.com',
+      password: '123456',
+    })
+
+    await sut.create({
+      id: 'account-1',
+      name: 'Bank Account 1',
+      balance: 0.0,
+      userId: user.id,
+    })
+
+    await sut.create({
+      id: 'account-2',
+      name: 'Bank Account 2',
+      balance: 0.0,
+      userId: user.id,
+    })
+
+    const { accounts } = await sut.list({ userId: user.id, page: 1 })
+
+    expect(accounts).toHaveLength(2)
+    expect(accounts).toEqual([
+      expect.objectContaining({ id: 'account-1' }),
+      expect.objectContaining({ id: 'account-2' }),
+    ])
+  })
+
+  it('should be not able to accounts list without passing the id user', async () => {
+    const user_id = 'id_do_not_exists'
+
+    await expect(() =>
+      sut.list({
+        userId: user_id,
+        page: 1,
+      }),
+    ).rejects.toBeInstanceOf(ResourceNotFoundError)
+  })
+
+  it('should be able to make pagination in accounts list', async () => {
+    const user = await usersRepository.create({
+      id: 'user-1',
+      name: 'John Doe',
+      email: 'johndoe@gmail.com',
+      password: '123456',
+    })
+
+    for (let i = 0; i < 22; i++) {
+      await sut.create({
+        id: `account-${i}`,
+        name: 'Bank Account 1',
+        balance: 0.0,
+        userId: user.id,
+      })
+    }
+
+    const { accounts } = await sut.list({ userId: user.id, page: 2 })
+    expect(accounts).toHaveLength(2)
+    expect(accounts).toEqual([
+      expect.objectContaining({ id: 'account-20' }),
+      expect.objectContaining({ id: 'account-21' }),
+    ])
   })
 })

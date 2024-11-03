@@ -5,6 +5,7 @@ import { ResourceNotFoundError } from './errors/resource-not-found-error'
 import { InvalidBalanceValueError } from './errors/invalid-balance-value-error'
 
 interface CreateAccountsServiceRequest {
+  id: string
   name: string
   balance: number
   userId: string
@@ -12,6 +13,15 @@ interface CreateAccountsServiceRequest {
 
 interface CreateAccountsServiceResponse {
   account: Account
+}
+
+interface ListAccountsServiceRequest {
+  userId: string
+  page: number
+}
+
+interface ListAccountsServiceResponse {
+  accounts: Account[]
 }
 
 interface DeleteAccountsServiceRequest {
@@ -24,7 +34,28 @@ export class AccountsService {
     private usersRepository: UsersRepository,
   ) {}
 
+  async list({
+    userId,
+    page,
+  }: ListAccountsServiceRequest): Promise<ListAccountsServiceResponse> {
+    const user = await this.usersRepository.findById(userId)
+
+    if (!user) {
+      throw new ResourceNotFoundError()
+    }
+
+    const accounts = await this.accountsRepository.findManyByUserId(
+      userId,
+      page,
+    )
+
+    return {
+      accounts,
+    }
+  }
+
   async create({
+    id,
     name,
     balance,
     userId,
@@ -40,6 +71,7 @@ export class AccountsService {
     }
 
     const account = await this.accountsRepository.create({
+      id,
       name,
       balance,
       userId,
