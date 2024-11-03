@@ -28,7 +28,7 @@ model Account {
   name         String?
   balance      Float         @default(0)
   userId       String
-  user         User          @relation(fields: [userId], references: [id])
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
 
   @@map("accounts")
@@ -39,10 +39,10 @@ model Transaction {
   amount          Float
   createdAt       DateTime        @default(now())
   accountId       String
-  account         Account         @relation(fields: [accountId], references: [id])
+  account         Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
   transactionType TransactionType
-  Income          Income[]
-  Expense         Expense[]
+  transferFrom    Transfer?       @relation("TransferFrom")
+  transferTo      Transfer?       @relation("TransferTo")
 
   @@map("transactions")
 }
@@ -50,33 +50,14 @@ model Transaction {
 enum TransactionType {
   INCOME
   EXPENSE
-  TRANSFER
-}
-
-model Income {
-  id            String      @id @default(uuid())
-  transactionId String
-  transaction   Transaction @relation(fields: [transactionId], references: [id])
-  transfer      Transfer?   @relation("IncomeToTransfer")
-
-  @@map("incomes")
-}
-
-model Expense {
-  id            String      @id @default(uuid())
-  transactionId String
-  transaction   Transaction @relation(fields: [transactionId], references: [id])
-  transfer      Transfer?   @relation("ExpenseToTransfer")
-
-  @@map("expenses")
 }
 
 model Transfer {
-  id      String  @id @default(uuid())
-  fromId  String  @unique
-  toId    String  @unique
-  income  Income  @relation("IncomeToTransfer", fields: [fromId], references: [id])
-  expense Expense @relation("ExpenseToTransfer", fields: [toId], references: [id])
+  id              String      @id @default(uuid())
+  fromId          String      @unique
+  toId            String      @unique
+  transactionFrom Transaction @relation("TransferFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  transactionTo   Transaction @relation("TransferTo", fields: [toId], references: [id], onDelete: Cascade)
 
   @@map("transfers")
 }
