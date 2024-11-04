@@ -1,8 +1,8 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { z } from 'zod'
-import { makeAccountsService } from '../../services/factories/make-accounts-service'
-import { ResourceNotFoundError } from '../../services/errors/resource-not-found-error'
-import { InvalidBalanceValueError } from '../../services/errors/invalid-balance-value-error'
+import { makeAccountsService } from '../../../services/factories/make-accounts-service'
+import { ResourceNotFoundError } from '../../../services/errors/resource-not-found-error'
+import { InvalidBalanceValueError } from '../../../services/errors/invalid-balance-value-error'
 
 export async function create_account(
   request: FastifyRequest,

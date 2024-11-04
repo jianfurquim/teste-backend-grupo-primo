@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { z } from 'zod'
-import { makeAccountsService } from '../../services/factories/make-accounts-service'
-import { ResourceNotFoundError } from '../../services/errors/resource-not-found-error'
+import { makeAccountsService } from '../../../services/factories/make-accounts-service'
+import { ResourceNotFoundError } from '../../../services/errors/resource-not-found-error'
 
 export async function list_account(
   request: FastifyRequest,
