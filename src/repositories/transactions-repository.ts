@@ -6,6 +6,10 @@ export interface TransactionsRepository {
     accountNumber: number,
     page: number,
   ): Promise<Transaction[]>
+  findManyByAccountNumberNoPaginate(
+    accountNumber: number,
+  ): Promise<Transaction[]>
+  findManyByUserId(userId: string, page: number): Promise<Transaction[]>
   create(data: Prisma.TransactionUncheckedCreateInput): Promise<Transaction>
   delete(id: string): Promise<Transaction | null>
 }

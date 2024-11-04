@@ -1,6 +1,7 @@
 import { Transaction, Prisma } from '@prisma/client'
 import { TransactionsRepository } from '../transactions-repository'
-import { randomUUID } from 'crypto'
+import { randomUUID } from 'node:crypto'
+import { InMemoryAccountsRepository } from './in-memory-accounts-repository'
 
 export class InMemoryTransactionsRepository implements TransactionsRepository {
   public items: Transaction[] = []
@@ -19,6 +20,24 @@ export class InMemoryTransactionsRepository implements TransactionsRepository {
     return this.items
       .filter((item) => item.accountNumber === accountNumber)
       .slice((page - 1) * 20, page * 20)
+  }
+
+  async findManyByAccountNumberNoPaginate(accountNumber: number) {
+    return this.items.filter((item) => item.accountNumber === accountNumber)
+  }
+
+  async findManyByUserId(userId: string, page: number) {
+    const accountsRepository = new InMemoryAccountsRepository()
+
+    const accountNumbers = (
+      await accountsRepository.findManyByUserIdNoPaginate(userId)
+    ).map((account) => account.number)
+
+    const transactions = this.items.filter((transaction) =>
+      accountNumbers.includes(transaction.accountNumber),
+    )
+
+    return transactions.slice((page - 1) * 20, page * 20)
   }
 
   async create(data: Prisma.TransactionUncheckedCreateInput) {

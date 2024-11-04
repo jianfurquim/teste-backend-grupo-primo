@@ -25,6 +25,30 @@ export class PrismaTransactionsRepository implements TransactionsRepository {
     return transactions
   }
 
+  async findManyByAccountNumberNoPaginate(accountNumber: number) {
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        accountNumber,
+      },
+    })
+
+    return transactions
+  }
+
+  async findManyByUserId(userId: string, page: number) {
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        account: {
+          userId,
+        },
+      },
+      skip: (page - 1) * 20,
+      take: 20,
+    })
+
+    return transactions
+  }
+
   async create(data: Prisma.TransactionUncheckedCreateInput) {
     const transaction = await prisma.transaction.create({
       data,
