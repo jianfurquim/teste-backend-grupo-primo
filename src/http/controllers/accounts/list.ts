@@ -3,10 +3,7 @@ import { z } from 'zod'
 import { makeAccountsService } from '../../../services/factories/make-accounts-service'
 import { ResourceNotFoundError } from '../../../services/errors/resource-not-found-error'
 
-export async function list_account(
-  request: FastifyRequest,
-  replay: FastifyReply,
-) {
+export async function list(request: FastifyRequest, replay: FastifyReply) {
   const registerBodySchema = z.object({
     page: z.coerce.number(),
   })
@@ -29,7 +26,7 @@ export async function list_account(
     })
   } catch (err) {
     if (err instanceof ResourceNotFoundError) {
-      return replay.status(409).send({ message: err.message, issues: {} })
+      return replay.status(404).send({ message: err.message, issues: {} })
     }
 
     throw err
