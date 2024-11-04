@@ -42,7 +42,7 @@ describe('Delete Income (E2E)', () => {
     const { token } = await createAndAuthenticateUser(app)
 
     await request(app.server)
-      .post('/income/create')
+      .post('/incomes/create')
       .set('Authorization', `Bearer ${token}`)
       .send({
         amount: mockCreateTransaction.amount,
@@ -51,7 +51,7 @@ describe('Delete Income (E2E)', () => {
 
     // Agora, tenta deletar a despesa com o mock
     const response = await request(app.server)
-      .delete(`/income/delete?id=${mockCreateTransaction.id}`)
+      .delete(`/incomes/delete?id=${mockCreateTransaction.id}`)
       .set('Authorization', `Bearer ${token}`)
 
     expect(response.statusCode).toEqual(202)

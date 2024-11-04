@@ -13,9 +13,9 @@ export async function transactionsRoutes(app: FastifyInstance) {
   app.get('/transactions', listByUserId)
   app.get('/transactions/by-account', listTransactionsByAccount)
 
-  app.post('/expense/create', expenseCreate)
-  app.delete('/expense/delete', expenseDelete)
+  app.post('/expenses/create', expenseCreate)
+  app.delete('/expenses/delete', expenseDelete)
 
-  app.post('/income/create', incomeCreate)
-  app.delete('/income/delete', incomeDelete)
+  app.post('/incomes/create', incomeCreate)
+  app.delete('/incomes/delete', incomeDelete)
 }

@@ -30,7 +30,7 @@ describe('Create Income (E2E)', () => {
     const { token } = await createAndAuthenticateUser(app)
 
     const response = await request(app.server)
-      .post('/expense/create')
+      .post('/incomes/create')
       .set('Authorization', `Bearer ${token}`)
       .send({
         amount: 300.5,
