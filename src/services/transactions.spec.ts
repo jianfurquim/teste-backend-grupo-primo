@@ -16,7 +16,11 @@ describe('Transactions Service', () => {
     usersRepository = new InMemoryUsersRepository()
     accountsRepository = new InMemoryAccountsRepository()
     transactionsRepository = new InMemoryTransactionsRepository()
-    sut = new TransactionsService(accountsRepository, transactionsRepository)
+    sut = new TransactionsService(
+      usersRepository,
+      accountsRepository,
+      transactionsRepository,
+    )
   })
 
   it('should be able to create transaction', async () => {
@@ -158,6 +162,104 @@ describe('Transactions Service', () => {
 
     const { transactions } = await sut.list({
       accountNumber: account.number,
+      page: 2,
+    })
+    expect(transactions).toHaveLength(2)
+    expect(transactions).toEqual([
+      expect.objectContaining({
+        amount: 20,
+        transactionType: 'INCOME',
+        accountNumber: account.number,
+      }),
+      expect.objectContaining({
+        amount: 21,
+        transactionType: 'INCOME',
+        accountNumber: account.number,
+      }),
+    ])
+  })
+
+  it('should be able to return a transactions list by user id', async () => {
+    const user = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@gmail.com',
+      password: '123456',
+    })
+
+    const account = await accountsRepository.create({
+      name: 'Bank Account 1',
+      number: 1234,
+      balance: 0.0,
+      userId: user.id,
+    })
+
+    await sut.create({
+      amount: 100.0,
+      transactionType: 'EXPENSE',
+      accountNumber: account.number,
+    })
+
+    await sut.create({
+      amount: 200.0,
+      transactionType: 'INCOME',
+      accountNumber: account.number,
+    })
+
+    const { transactions } = await sut.listByUserId({
+      userId: user.id,
+      page: 1,
+    })
+
+    expect(transactions).toHaveLength(2)
+    expect(transactions).toEqual([
+      expect.objectContaining({
+        amount: 100.0,
+        transactionType: 'EXPENSE',
+        accountNumber: account.number,
+      }),
+      expect.objectContaining({
+        amount: 200.0,
+        transactionType: 'INCOME',
+        accountNumber: account.number,
+      }),
+    ])
+  })
+
+  it('should be not able to transactions list by id user without passing the id user', async () => {
+    const user_id = 'id_do_not_exists'
+
+    await expect(() =>
+      sut.listByUserId({
+        userId: user_id,
+        page: 1,
+      }),
+    ).rejects.toBeInstanceOf(ResourceNotFoundError)
+  })
+
+  it('should be able to make pagination in transactions list by user id', async () => {
+    const user = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@gmail.com',
+      password: '123456',
+    })
+
+    const account = await accountsRepository.create({
+      name: 'Bank Account 1',
+      number: 1234,
+      balance: 0.0,
+      userId: user.id,
+    })
+
+    for (let i = 0; i < 22; i++) {
+      await sut.create({
+        amount: i,
+        transactionType: 'INCOME',
+        accountNumber: account.number,
+      })
+    }
+
+    const { transactions } = await sut.listByUserId({
+      userId: user.id,
       page: 2,
     })
     expect(transactions).toHaveLength(2)

@@ -3,6 +3,7 @@ import { AccountsRepository } from '../repositories/accounts-repository'
 import { ResourceNotFoundError } from './errors/resource-not-found-error'
 import { InvalidBalanceValueError } from './errors/invalid-balance-value-error'
 import { TransactionsRepository } from '../repositories/transactions-repository'
+import { UsersRepository } from '../repositories/users-repository'
 
 interface CreateTransactionsServiceRequest {
   amount: number
@@ -23,12 +24,22 @@ interface ListTransactionsServiceResponse {
   transactions: Transaction[]
 }
 
+interface ListByUserIdTransactionsServiceRequest {
+  userId: string
+  page: number
+}
+
+interface ListByUserIdTransactionsServiceResponse {
+  transactions: Transaction[]
+}
+
 interface DeleteTransactionsServiceRequest {
   transactionId: string
 }
 
 export class TransactionsService {
   constructor(
+    private usersRepository: UsersRepository,
     private accountsRepository: AccountsRepository,
     private transactionRepository: TransactionsRepository,
   ) {}
@@ -48,6 +59,31 @@ export class TransactionsService {
         accountNumber,
         page,
       )
+
+    return {
+      transactions,
+    }
+  }
+
+  async listByUserId({
+    userId,
+    page,
+  }: ListByUserIdTransactionsServiceRequest): Promise<ListByUserIdTransactionsServiceResponse> {
+    const user = await this.usersRepository.findById(userId)
+
+    if (!user) {
+      throw new ResourceNotFoundError()
+    }
+
+    const accountNumbers = (
+      await this.accountsRepository.findManyByUserIdNoPaginate(userId)
+    ).map((account) => account.number)
+
+    const transactions = await this.transactionRepository.findManyByUserId(
+      userId,
+      accountNumbers,
+      page,
+    )
 
     return {
       transactions,
