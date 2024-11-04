@@ -21,11 +21,20 @@ export async function register(request: FastifyRequest, replay: FastifyReply) {
       password,
     })
 
+    const token = await replay.jwtSign(
+      {},
+      {
+        sign: {
+          sub: user.id,
+        },
+      },
+    )
+
     return replay.status(202).send({
       message: 'User created with success.',
       issues: {
         user: user.name,
-        id: user.id,
+        token,
       },
     })
   } catch (err) {

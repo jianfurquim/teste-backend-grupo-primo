@@ -23,7 +23,7 @@ describe('Register (E2E)', () => {
       message: expect.any(String),
       issues: {
         user: expect.any(String),
-        id: expect.any(String),
+        token: expect.any(String),
       },
     })
   })

@@ -31,6 +31,7 @@ describe('Create Accounts (E2E)', () => {
         id: expect.any(String),
         account: expect.any(String),
         number: expect.any(Number),
+        balance: expect.any(Number),
       },
     })
   })

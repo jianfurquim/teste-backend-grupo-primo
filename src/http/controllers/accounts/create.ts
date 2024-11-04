@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { makeAccountsService } from '../../../services/factories/make-accounts-service'
 import { ResourceNotFoundError } from '../../../services/errors/resource-not-found-error'
 import { InvalidBalanceValueError } from '../../../services/errors/invalid-balance-value-error'
+import { ResourceAlreadyExistsError } from '../../../services/errors/invalid-resource-already-exists-error'
 
 export async function create(request: FastifyRequest, replay: FastifyReply) {
   const registerBodySchema = z.object({
@@ -29,11 +30,16 @@ export async function create(request: FastifyRequest, replay: FastifyReply) {
         id: account.id,
         account: account.name,
         number: account.number,
+        balance: account.balance,
       },
     })
   } catch (err) {
     if (err instanceof ResourceNotFoundError) {
       return replay.status(404).send({ message: err.message, issues: {} })
+    }
+
+    if (err instanceof ResourceAlreadyExistsError) {
+      return replay.status(409).send({ message: err.message, issues: {} })
     }
 
     if (err instanceof InvalidBalanceValueError) {
