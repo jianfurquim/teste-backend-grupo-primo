@@ -54,13 +54,13 @@ export class PrismaAccountsRepository implements AccountsRepository {
   }
 
   async changeBalance(
-    accountId: string,
+    accountNumber: number,
     amount: number,
     type: TransactionType,
   ) {
     return await prisma.$transaction(async (tx) => {
       const account = await tx.account.findUnique({
-        where: { id: accountId },
+        where: { number: accountNumber },
       })
 
       if (!account) {
@@ -73,7 +73,7 @@ export class PrismaAccountsRepository implements AccountsRepository {
           : account.balance - amount
 
       const updatedAccount = await tx.account.update({
-        where: { id: accountId },
+        where: { number: accountNumber },
         data: { balance: newBalance },
       })
 

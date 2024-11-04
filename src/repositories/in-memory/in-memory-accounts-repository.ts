@@ -36,11 +36,11 @@ export class InMemoryAccountsRepository implements AccountsRepository {
   }
 
   async changeBalance(
-    accountId: string,
+    accountNumber: number,
     amount: number,
     type: TransactionType,
   ): Promise<Account> {
-    const account = await this.findById(accountId)
+    const account = await this.findByNumber(accountNumber)
 
     if (!account) {
       throw new Error('Account not found')

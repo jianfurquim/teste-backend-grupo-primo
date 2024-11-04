@@ -7,7 +7,7 @@ export interface AccountsRepository {
   findManyByUserIdNoPaginate(userId: string): Promise<Account[]>
   create(data: Prisma.AccountUncheckedCreateInput): Promise<Account>
   changeBalance(
-    accountId: string,
+    accountNumber: number,
     amount: number,
     type: TransactionType,
   ): Promise<Account>

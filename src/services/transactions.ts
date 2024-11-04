@@ -112,7 +112,7 @@ export class TransactionsService {
     })
 
     await this.accountsRepository.changeBalance(
-      account.id,
+      account.number,
       amount,
       transactionType,
     )
@@ -128,6 +128,17 @@ export class TransactionsService {
     if (!transaction) {
       throw new ResourceNotFoundError()
     }
+
+    const adjustmentAmount =
+      transaction.transactionType === TransactionType.EXPENSE
+        ? transaction.amount // Adiciona de volta se for uma despesa
+        : -transaction.amount // Subtrai se for uma receita
+
+    await this.accountsRepository.changeBalance(
+      transaction.accountNumber,
+      adjustmentAmount,
+      transaction.transactionType,
+    )
 
     const deleted_transaction = await this.transactionRepository.delete(
       transaction.id,
