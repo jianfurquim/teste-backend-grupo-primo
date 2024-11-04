@@ -2,7 +2,7 @@ import request from 'supertest'
 import { app } from '../../app'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-describe('Register (E2E)', () => {
+describe('Authenticate (E2E)', () => {
   beforeAll(async () => {
     await app.ready()
   })
@@ -11,9 +11,14 @@ describe('Register (E2E)', () => {
     await app.close()
   })
 
-  it('should be able to register', async () => {
-    const response = await request(app.server).post('/register').send({
+  it('should be able to authenticate', async () => {
+    await request(app.server).post('/register').send({
       name: 'John Doe',
+      email: 'johndoe@gmail.com',
+      password: '123456',
+    })
+
+    const response = await request(app.server).post('/authenticate').send({
       email: 'johndoe@gmail.com',
       password: '123456',
     })
@@ -22,8 +27,8 @@ describe('Register (E2E)', () => {
     expect(response.body).toEqual({
       message: expect.any(String),
       issues: {
+        token: expect.any(String),
         user: expect.any(String),
-        id: expect.any(String),
       },
     })
   })
