@@ -1,6 +1,7 @@
 import request from 'supertest'
 import { app } from '../../../app'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { createAndAuthenticateUser } from '../../../utils/create-and-authenticate-user'
 
 describe('Delete Accounts (E2E)', () => {
   beforeAll(async () => {
@@ -12,22 +13,11 @@ describe('Delete Accounts (E2E)', () => {
   })
 
   it('should be able to delete an account', async () => {
-    await request(app.server).post('/register').send({
-      name: 'John Doe',
-      email: 'johndoe@gmail.com',
-      password: '123456',
-    })
-
-    const authResponse = await request(app.server).post('/authenticate').send({
-      email: 'johndoe@gmail.com',
-      password: '123456',
-    })
-
-    const { issues } = authResponse.body
+    const { token } = await createAndAuthenticateUser(app)
 
     const createResponse = await request(app.server)
       .post('/accounts/create')
-      .set('Authorization', `Bearer ${issues.token}`)
+      .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'Accont Test',
         number: 1234,
@@ -36,12 +26,12 @@ describe('Delete Accounts (E2E)', () => {
 
     const { issues: accountIssues } = createResponse.body
 
-    const deleteResponse = await request(app.server)
+    const response = await request(app.server)
       .delete(`/accounts/delete?id=${accountIssues.id}`)
-      .set('Authorization', `Bearer ${issues.token}`)
+      .set('Authorization', `Bearer ${token}`)
 
-    expect(deleteResponse.statusCode).toEqual(200)
-    expect(createResponse.body).toEqual({
+    expect(response.statusCode).toEqual(200)
+    expect(response.body).toEqual({
       message: expect.any(String),
       issues: expect.objectContaining({
         account: expect.any(String),

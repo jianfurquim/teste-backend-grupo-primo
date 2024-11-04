@@ -2,6 +2,7 @@ import request from 'supertest'
 import { app } from '../../../app'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { AccountsService } from '../../../services/accounts'
+import { createAndAuthenticateUser } from '../../../utils/create-and-authenticate-user'
 
 describe('List Accounts (E2E)', () => {
   beforeAll(async () => {
@@ -34,25 +35,14 @@ describe('List Accounts (E2E)', () => {
       accounts: mockAccounts,
     })
 
-    await request(app.server).post('/register').send({
-      name: 'John Doe',
-      email: 'johndoe@gmail.com',
-      password: '123456',
-    })
+    const { token } = await createAndAuthenticateUser(app)
 
-    const authResponse = await request(app.server).post('/authenticate').send({
-      email: 'johndoe@gmail.com',
-      password: '123456',
-    })
-
-    const { issues } = authResponse.body
-
-    const listAccountsResponse = await request(app.server)
+    const response = await request(app.server)
       .get('/accounts?page=1')
-      .set('Authorization', `Bearer ${issues.token}`)
+      .set('Authorization', `Bearer ${token}`)
 
-    expect(listAccountsResponse.statusCode).toEqual(202)
-    expect(listAccountsResponse.body).toEqual({
+    expect(response.statusCode).toEqual(202)
+    expect(response.body).toEqual({
       message: expect.any(String),
       issues: {
         accounts: expect.arrayContaining([

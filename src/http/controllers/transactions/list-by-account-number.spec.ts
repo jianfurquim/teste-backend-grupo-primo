@@ -3,6 +3,7 @@ import { app } from '../../../app'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { TransactionsService } from '../../../services/transactions'
 import { TransactionType } from '@prisma/client'
+import { createAndAuthenticateUser } from '../../../utils/create-and-authenticate-user'
 
 describe('Transactions Accounts (E2E)', () => {
   beforeAll(async () => {
@@ -35,25 +36,14 @@ describe('Transactions Accounts (E2E)', () => {
       transactions: mockTransactions,
     })
 
-    await request(app.server).post('/register').send({
-      name: 'John Doe',
-      email: 'johndoe@gmail.com',
-      password: '123456',
-    })
+    const { token } = await createAndAuthenticateUser(app)
 
-    const authResponse = await request(app.server).post('/authenticate').send({
-      email: 'johndoe@gmail.com',
-      password: '123456',
-    })
-
-    const { issues } = authResponse.body
-
-    const listTransactionsResponse = await request(app.server)
+    const response = await request(app.server)
       .get('/transactions/by-account?accountNumber=1234&page=1')
-      .set('Authorization', `Bearer ${issues.token}`)
+      .set('Authorization', `Bearer ${token}`)
 
-    expect(listTransactionsResponse.statusCode).toEqual(202)
-    expect(listTransactionsResponse.body).toEqual({
+    expect(response.statusCode).toEqual(202)
+    expect(response.body).toEqual({
       message: expect.any(String),
       issues: {
         transactions: expect.arrayContaining([
