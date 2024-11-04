@@ -27,7 +27,6 @@ describe('Transactions Service', () => {
     })
 
     const account = await accountsRepository.create({
-      id: 'account-1',
       name: 'Bank Account',
       number: 1234,
       balance: 0.0,
@@ -35,7 +34,6 @@ describe('Transactions Service', () => {
     })
 
     const { transaction } = await sut.create({
-      id: 'transaction-1',
       amount: 0.0,
       transactionType: 'EXPENSE',
       accountNumber: account.number,
@@ -49,7 +47,6 @@ describe('Transactions Service', () => {
 
     await expect(() =>
       sut.create({
-        id: 'transaction-1',
         amount: 0.0,
         transactionType: 'EXPENSE',
         accountNumber: account_number,
@@ -57,7 +54,7 @@ describe('Transactions Service', () => {
     ).rejects.toBeInstanceOf(ResourceNotFoundError)
   })
 
-  it('should not be able to create transaction with negative ammout', async () => {
+  it('should not be able to create transaction with negative amount', async () => {
     const user = await usersRepository.create({
       name: 'John Doe',
       email: 'johndoe@gmail.com',
@@ -65,7 +62,6 @@ describe('Transactions Service', () => {
     })
 
     const account = await accountsRepository.create({
-      id: 'account-1',
       name: 'Bank Account',
       number: 1234,
       balance: 0.0,
@@ -74,11 +70,145 @@ describe('Transactions Service', () => {
 
     await expect(() =>
       sut.create({
-        id: 'transaction-1',
         amount: -5.0,
         transactionType: 'EXPENSE',
         accountNumber: account.number,
       }),
     ).rejects.toBeInstanceOf(InvalidBalanceValueError)
+  })
+
+  it('should be able to return a transactions list', async () => {
+    const user = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@gmail.com',
+      password: '123456',
+    })
+
+    const account = await accountsRepository.create({
+      name: 'Bank Account 1',
+      number: 1234,
+      balance: 0.0,
+      userId: user.id,
+    })
+
+    await sut.create({
+      amount: 100.0,
+      transactionType: 'EXPENSE',
+      accountNumber: account.number,
+    })
+
+    await sut.create({
+      amount: 200.0,
+      transactionType: 'INCOME',
+      accountNumber: account.number,
+    })
+
+    const { transactions } = await sut.list({
+      accountNumber: account.number,
+      page: 1,
+    })
+
+    expect(transactions).toHaveLength(2)
+    expect(transactions).toEqual([
+      expect.objectContaining({
+        amount: 100.0,
+        transactionType: 'EXPENSE',
+        accountNumber: account.number,
+      }),
+      expect.objectContaining({
+        amount: 200.0,
+        transactionType: 'INCOME',
+        accountNumber: account.number,
+      }),
+    ])
+  })
+
+  it('should be not able to transactions list without passing the number account', async () => {
+    const number_account = 6666
+
+    await expect(() =>
+      sut.list({
+        accountNumber: number_account,
+        page: 1,
+      }),
+    ).rejects.toBeInstanceOf(ResourceNotFoundError)
+  })
+
+  it('should be able to make pagination in transactions list', async () => {
+    const user = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@gmail.com',
+      password: '123456',
+    })
+
+    const account = await accountsRepository.create({
+      name: 'Bank Account 1',
+      number: 1234,
+      balance: 0.0,
+      userId: user.id,
+    })
+
+    for (let i = 0; i < 22; i++) {
+      await sut.create({
+        amount: i,
+        transactionType: 'INCOME',
+        accountNumber: account.number,
+      })
+    }
+
+    const { transactions } = await sut.list({
+      accountNumber: account.number,
+      page: 2,
+    })
+    expect(transactions).toHaveLength(2)
+    expect(transactions).toEqual([
+      expect.objectContaining({
+        amount: 20,
+        transactionType: 'INCOME',
+        accountNumber: account.number,
+      }),
+      expect.objectContaining({
+        amount: 21,
+        transactionType: 'INCOME',
+        accountNumber: account.number,
+      }),
+    ])
+  })
+
+  it('should be able to delete transaction', async () => {
+    const user = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@gmail.com',
+      password: '123456',
+    })
+
+    const account = await accountsRepository.create({
+      name: 'Bank Account 1',
+      number: 1234,
+      balance: 0.0,
+      userId: user.id,
+    })
+
+    const { transaction } = await sut.create({
+      amount: 200.0,
+      transactionType: 'INCOME',
+      accountNumber: account.number,
+    })
+
+    await sut.delete({
+      transactionId: transaction.id,
+    })
+
+    expect(await transactionsRepository.findById(transaction.id)).toBeNull()
+  })
+
+  it('should be not able to delete a transaction without passing the id transaction', async () => {
+    const transaction_id = 'id_do_not_exists'
+
+    await expect(() =>
+      sut.delete({
+        transactionId: transaction_id,
+      }),
+    ).rejects.toBeInstanceOf(ResourceNotFoundError)
   })
 })

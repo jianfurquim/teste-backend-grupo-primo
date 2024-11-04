@@ -14,11 +14,45 @@ interface CreateTransactionsServiceResponse {
   transaction: Transaction
 }
 
+interface ListTransactionsServiceRequest {
+  accountNumber: number
+  page: number
+}
+
+interface ListTransactionsServiceResponse {
+  transactions: Transaction[]
+}
+
+interface DeleteTransactionsServiceRequest {
+  transactionId: string
+}
+
 export class TransactionsService {
   constructor(
     private accountsRepository: AccountsRepository,
     private transactionRepository: TransactionsRepository,
   ) {}
+
+  async list({
+    accountNumber,
+    page,
+  }: ListTransactionsServiceRequest): Promise<ListTransactionsServiceResponse> {
+    const account = await this.accountsRepository.findByNumber(accountNumber)
+
+    if (!account) {
+      throw new ResourceNotFoundError()
+    }
+
+    const transactions =
+      await this.transactionRepository.findManyByAccountNumber(
+        accountNumber,
+        page,
+      )
+
+    return {
+      transactions,
+    }
+  }
 
   async create({
     amount,
@@ -43,6 +77,22 @@ export class TransactionsService {
 
     return {
       transaction,
+    }
+  }
+
+  async delete({ transactionId }: DeleteTransactionsServiceRequest) {
+    const transaction = await this.transactionRepository.findById(transactionId)
+
+    if (!transaction) {
+      throw new ResourceNotFoundError()
+    }
+
+    const deleted_transaction = await this.transactionRepository.delete(
+      transaction.id,
+    )
+
+    return {
+      deleted_transaction,
     }
   }
 }
