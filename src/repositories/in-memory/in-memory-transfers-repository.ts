@@ -16,15 +16,15 @@ export class InMemoryTransfersRepository implements TransfersRepository {
   }
 
   async create(data: Prisma.TransferUncheckedCreateInput) {
-    const Transfer = {
+    const transfer = {
       id: randomUUID(),
       fromId: data.fromId,
       toId: data.toId,
     }
 
-    this.items.push(Transfer)
+    this.items.push(transfer)
 
-    return Transfer
+    return transfer
   }
 
   async delete(id: string) {

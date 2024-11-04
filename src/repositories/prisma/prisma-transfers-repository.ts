@@ -14,11 +14,11 @@ export class PrismaTransfersRepository implements TransfersRepository {
   }
 
   async create(data: Prisma.TransferUncheckedCreateInput) {
-    const account = await prisma.transfer.create({
+    const transfer = await prisma.transfer.create({
       data,
     })
 
-    return account
+    return transfer
   }
 
   async delete(id: string) {

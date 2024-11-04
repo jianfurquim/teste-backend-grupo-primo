@@ -65,18 +65,16 @@ export class TransfersService {
   }
 
   async delete({ transferId }: DeleteTransfersServiceRequest) {
-    const transaction = await this.transfersRepository.findById(transferId)
+    const transfer = await this.transfersRepository.findById(transferId)
 
-    if (!transaction) {
+    if (!transfer) {
       throw new ResourceNotFoundError()
     }
 
-    const deleted_transaction = await this.transfersRepository.delete(
-      transaction.id,
-    )
+    const deleted_transfer = await this.transfersRepository.delete(transfer.id)
 
     return {
-      deleted_transaction,
+      deleted_transfer,
     }
   }
 }
