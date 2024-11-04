@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { makeTransactionsService } from '../../../services/factories/make-transactions-service'
 import { ResourceNotFoundError } from '../../../services/errors/resource-not-found-error'
 
-export async function listTransactionsByAccount(
+export async function listTransactionsByAccountNumber(
   request: FastifyRequest,
   replay: FastifyReply,
 ) {
