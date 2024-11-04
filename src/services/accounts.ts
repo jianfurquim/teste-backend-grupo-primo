@@ -25,6 +25,14 @@ interface ListAccountsServiceResponse {
   accounts: Account[]
 }
 
+interface GetAccountByIdServiceRequest {
+  number: number
+}
+
+interface GetAccountByIdServiceResponse {
+  account: Account
+}
+
 interface DeleteAccountsServiceRequest {
   accountId: string
 }
@@ -52,6 +60,20 @@ export class AccountsService {
 
     return {
       accounts,
+    }
+  }
+
+  async getAccountByNumber({
+    number,
+  }: GetAccountByIdServiceRequest): Promise<GetAccountByIdServiceResponse> {
+    const account = await this.accountsRepository.findByNumber(number)
+
+    if (!account) {
+      throw new ResourceNotFoundError()
+    }
+
+    return {
+      account,
     }
   }
 

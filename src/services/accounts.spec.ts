@@ -183,4 +183,33 @@ describe('Accounts Service', () => {
       expect.objectContaining({ number: 21 }),
     ])
   })
+
+  it('should be able to get a account using get by number', async () => {
+    const user = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@gmail.com',
+      password: '123456',
+    })
+
+    await sut.create({
+      name: 'Bank Account 1',
+      number: 1234,
+      balance: 0.0,
+      userId: user.id,
+    })
+
+    const { account } = await sut.getAccountByNumber({ number: 1234 })
+
+    expect(account.id).toEqual(expect.any(String))
+  })
+
+  it('should not be able to get an account with the same number', async () => {
+    const account_number = 6666
+
+    await expect(() =>
+      sut.getAccountByNumber({
+        number: account_number,
+      }),
+    ).rejects.toBeInstanceOf(ResourceNotFoundError)
+  })
 })
