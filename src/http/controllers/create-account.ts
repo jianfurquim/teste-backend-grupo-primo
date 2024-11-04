@@ -10,17 +10,21 @@ export async function create_account(
 ) {
   const registerBodySchema = z.object({
     name: z.string(),
+    number: z.coerce.number(),
     balance: z.number(),
     userId: z.string(),
   })
 
-  const { name, balance, userId } = registerBodySchema.parse(request.body)
+  const { name, number, balance, userId } = registerBodySchema.parse(
+    request.body,
+  )
 
   try {
     const accountsService = makeAccountsService()
 
     const { account } = await accountsService.create({
       name,
+      number,
       balance,
       userId,
     })
@@ -29,7 +33,7 @@ export async function create_account(
       message: 'Account created with success.',
       issues: {
         account: account.name,
-        id: account.id,
+        number: account.number,
       },
     })
   } catch (err) {

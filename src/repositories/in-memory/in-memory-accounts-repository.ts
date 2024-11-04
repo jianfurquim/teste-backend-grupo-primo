@@ -1,11 +1,22 @@
 import { Prisma, Account } from '@prisma/client'
 import { AccountsRepository } from '../accounts-repository'
+import { randomUUID } from 'crypto'
 
 export class InMemoryAccountsRepository implements AccountsRepository {
   public items: Account[] = []
 
   async findById(id: string) {
     const account = this.items.find((item) => item.id === id)
+
+    if (!account) {
+      return null
+    }
+
+    return account
+  }
+
+  async findByNumber(number: number) {
+    const account = this.items.find((item) => item.number === number)
 
     if (!account) {
       return null
@@ -22,8 +33,9 @@ export class InMemoryAccountsRepository implements AccountsRepository {
 
   async create(data: Prisma.AccountUncheckedCreateInput) {
     const account = {
-      id: data.id ?? '',
+      id: randomUUID(),
       name: data.name ?? null,
+      number: data.number,
       balance: data.balance ?? 0.0,
       userId: data.userId,
       created_at: new Date(),

@@ -3,10 +3,11 @@ import { AccountsRepository } from '../repositories/accounts-repository'
 import { UsersRepository } from '../repositories/users-repository'
 import { ResourceNotFoundError } from './errors/resource-not-found-error'
 import { InvalidBalanceValueError } from './errors/invalid-balance-value-error'
+import { ResourceAlreadyExistsError } from './errors/invalid-resource-already-exists-error'
 
 interface CreateAccountsServiceRequest {
-  id?: string
   name: string
+  number: number
   balance: number
   userId: string
 }
@@ -55,8 +56,8 @@ export class AccountsService {
   }
 
   async create({
-    id,
     name,
+    number,
     balance,
     userId,
   }: CreateAccountsServiceRequest): Promise<CreateAccountsServiceResponse> {
@@ -70,9 +71,15 @@ export class AccountsService {
       throw new InvalidBalanceValueError()
     }
 
+    const existingAccount = await this.accountsRepository.findByNumber(number)
+
+    if (existingAccount) {
+      throw new ResourceAlreadyExistsError()
+    }
+
     const account = await this.accountsRepository.create({
-      id,
       name,
+      number,
       balance,
       userId,
     })

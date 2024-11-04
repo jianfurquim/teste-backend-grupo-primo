@@ -13,6 +13,16 @@ export class PrismaAccountsRepository implements AccountsRepository {
     return account
   }
 
+  async findByNumber(number: number) {
+    const account = await prisma.account.findUnique({
+      where: {
+        number,
+      },
+    })
+
+    return account
+  }
+
   async findManyByUserId(userId: string, page: number) {
     const accounts = await prisma.account.findMany({
       where: {

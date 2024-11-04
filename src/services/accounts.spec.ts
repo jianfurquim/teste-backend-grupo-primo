@@ -4,12 +4,13 @@ import { AccountsService } from './accounts'
 import { InMemoryUsersRepository } from '../repositories/in-memory/in-memory-users-repository'
 import { ResourceNotFoundError } from './errors/resource-not-found-error'
 import { InvalidBalanceValueError } from './errors/invalid-balance-value-error'
+import { ResourceAlreadyExistsError } from './errors/invalid-resource-already-exists-error'
 
 let accountRepository: InMemoryAccountsRepository
 let usersRepository: InMemoryUsersRepository
 let sut: AccountsService
 
-describe('Create Accounts Service', () => {
+describe('Accounts Service', () => {
   beforeEach(() => {
     accountRepository = new InMemoryAccountsRepository()
     usersRepository = new InMemoryUsersRepository()
@@ -24,8 +25,8 @@ describe('Create Accounts Service', () => {
     })
 
     const { account } = await sut.create({
-      id: 'account-1',
       name: 'Bank Account',
+      number: 1234,
       balance: 0.0,
       userId: user.id,
     })
@@ -42,12 +43,36 @@ describe('Create Accounts Service', () => {
 
     await expect(() =>
       sut.create({
-        id: 'account-1',
         name: 'Bank Account',
+        number: 1234,
         balance: -5.0,
         userId: user.id,
       }),
     ).rejects.toBeInstanceOf(InvalidBalanceValueError)
+  })
+
+  it('should not be able to create an account with the same number', async () => {
+    const user = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@gmail.com',
+      password: '123456',
+    })
+
+    await sut.create({
+      name: 'Bank Account',
+      number: 1234,
+      balance: 0.0,
+      userId: user.id,
+    })
+
+    await expect(() =>
+      sut.create({
+        name: 'Bank Account',
+        number: 1234,
+        balance: 0.0,
+        userId: user.id,
+      }),
+    ).rejects.toBeInstanceOf(ResourceAlreadyExistsError)
   })
 
   it('should not be able to create an account without passing the id user', async () => {
@@ -55,8 +80,8 @@ describe('Create Accounts Service', () => {
 
     await expect(() =>
       sut.create({
-        id: 'account-1',
         name: 'Bank Account',
+        number: 1234,
         balance: 0.0,
         userId: user_id,
       }),
@@ -71,8 +96,8 @@ describe('Create Accounts Service', () => {
     })
 
     const { account } = await sut.create({
-      id: 'account-1',
       name: 'Bank Account',
+      number: 1234,
       balance: 0.0,
       userId: user.id,
     })
@@ -96,22 +121,21 @@ describe('Create Accounts Service', () => {
 
   it('should be able to return a accounts list', async () => {
     const user = await usersRepository.create({
-      id: 'user-1',
       name: 'John Doe',
       email: 'johndoe@gmail.com',
       password: '123456',
     })
 
     await sut.create({
-      id: 'account-1',
       name: 'Bank Account 1',
+      number: 1234,
       balance: 0.0,
       userId: user.id,
     })
 
     await sut.create({
-      id: 'account-2',
       name: 'Bank Account 2',
+      number: 4567,
       balance: 0.0,
       userId: user.id,
     })
@@ -120,8 +144,8 @@ describe('Create Accounts Service', () => {
 
     expect(accounts).toHaveLength(2)
     expect(accounts).toEqual([
-      expect.objectContaining({ id: 'account-1' }),
-      expect.objectContaining({ id: 'account-2' }),
+      expect.objectContaining({ number: 1234 }),
+      expect.objectContaining({ number: 4567 }),
     ])
   })
 
@@ -138,7 +162,6 @@ describe('Create Accounts Service', () => {
 
   it('should be able to make pagination in accounts list', async () => {
     const user = await usersRepository.create({
-      id: 'user-1',
       name: 'John Doe',
       email: 'johndoe@gmail.com',
       password: '123456',
@@ -146,8 +169,8 @@ describe('Create Accounts Service', () => {
 
     for (let i = 0; i < 22; i++) {
       await sut.create({
-        id: `account-${i}`,
         name: 'Bank Account 1',
+        number: i,
         balance: 0.0,
         userId: user.id,
       })
@@ -156,8 +179,8 @@ describe('Create Accounts Service', () => {
     const { accounts } = await sut.list({ userId: user.id, page: 2 })
     expect(accounts).toHaveLength(2)
     expect(accounts).toEqual([
-      expect.objectContaining({ id: 'account-20' }),
-      expect.objectContaining({ id: 'account-21' }),
+      expect.objectContaining({ number: 20 }),
+      expect.objectContaining({ number: 21 }),
     ])
   })
 })

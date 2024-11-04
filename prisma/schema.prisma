@@ -26,6 +26,7 @@ model User {
 model Account {
   id           String        @id @default(uuid())
   name         String?
+  number       Int           @unique
   balance      Float         @default(0)
   userId       String
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -38,8 +39,8 @@ model Transaction {
   id              String          @id @default(uuid())
   amount          Float
   createdAt       DateTime        @default(now())
-  accountId       String
-  account         Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountNumber   Int
+  account         Account         @relation(fields: [accountNumber], references: [number], onDelete: Cascade)
   transactionType TransactionType
   transferFrom    Transfer?       @relation("TransferFrom")
   transferTo      Transfer?       @relation("TransferTo")
