@@ -7,12 +7,14 @@ export async function list_account(
   request: FastifyRequest,
   replay: FastifyReply,
 ) {
+  await request.jwtVerify()
+  const userId = request.user.sub
+
   const registerBodySchema = z.object({
-    userId: z.string(),
     page: z.coerce.number(),
   })
 
-  const { userId, page } = registerBodySchema.parse(request.query)
+  const { page } = registerBodySchema.parse(request.query)
 
   try {
     const accountsService = makeAccountsService()

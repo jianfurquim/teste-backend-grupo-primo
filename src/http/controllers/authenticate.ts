@@ -22,11 +22,20 @@ export async function authenticate(
       password,
     })
 
+    const token = replay.jwtSign(
+      {},
+      {
+        sign: {
+          sub: user.id,
+        },
+      },
+    )
+
     return replay.status(202).send({
       message: 'User authenticated with success.',
       issues: {
         user: user.name,
-        id: user.id,
+        token,
       },
     })
   } catch (err) {

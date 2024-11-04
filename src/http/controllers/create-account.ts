@@ -8,16 +8,16 @@ export async function create_account(
   request: FastifyRequest,
   replay: FastifyReply,
 ) {
+  await request.jwtVerify()
+  const userId = request.user.sub
+
   const registerBodySchema = z.object({
     name: z.string(),
     number: z.coerce.number(),
     balance: z.number(),
-    userId: z.string(),
   })
 
-  const { name, number, balance, userId } = registerBodySchema.parse(
-    request.body,
-  )
+  const { name, number, balance } = registerBodySchema.parse(request.body)
 
   try {
     const accountsService = makeAccountsService()
