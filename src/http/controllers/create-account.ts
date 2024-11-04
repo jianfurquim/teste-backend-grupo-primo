@@ -8,9 +8,6 @@ export async function create_account(
   request: FastifyRequest,
   replay: FastifyReply,
 ) {
-  await request.jwtVerify()
-  const userId = request.user.sub
-
   const registerBodySchema = z.object({
     name: z.string(),
     number: z.coerce.number(),
@@ -26,7 +23,7 @@ export async function create_account(
       name,
       number,
       balance,
-      userId,
+      userId: request.user.sub,
     })
 
     return replay.status(202).send({

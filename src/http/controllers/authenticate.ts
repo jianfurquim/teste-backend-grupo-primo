@@ -22,7 +22,7 @@ export async function authenticate(
       password,
     })
 
-    const token = replay.jwtSign(
+    const token = await replay.jwtSign(
       {},
       {
         sign: {
@@ -34,7 +34,7 @@ export async function authenticate(
     return replay.status(202).send({
       message: 'User authenticated with success.',
       issues: {
-        user: user.name,
+        user: user.email,
         token,
       },
     })

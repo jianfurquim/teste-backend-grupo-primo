@@ -7,9 +7,6 @@ export async function list_account(
   request: FastifyRequest,
   replay: FastifyReply,
 ) {
-  await request.jwtVerify()
-  const userId = request.user.sub
-
   const registerBodySchema = z.object({
     page: z.coerce.number(),
   })
@@ -20,7 +17,7 @@ export async function list_account(
     const accountsService = makeAccountsService()
 
     const { accounts } = await accountsService.list({
-      userId,
+      userId: request.user.sub,
       page,
     })
 
