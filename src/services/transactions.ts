@@ -111,6 +111,12 @@ export class TransactionsService {
       accountNumber,
     })
 
+    await this.accountsRepository.changeBalance(
+      account.id,
+      amount,
+      transactionType,
+    )
+
     return {
       transaction,
     }

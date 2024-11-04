@@ -1,4 +1,4 @@
-import { Prisma, Account } from '@prisma/client'
+import { Prisma, Account, TransactionType } from '@prisma/client'
 import { AccountsRepository } from '../accounts-repository'
 import { randomUUID } from 'crypto'
 
@@ -33,6 +33,28 @@ export class InMemoryAccountsRepository implements AccountsRepository {
 
   async findManyByUserIdNoPaginate(userId: string) {
     return this.items.filter((item) => item.userId === userId)
+  }
+
+  async changeBalance(
+    accountId: string,
+    amount: number,
+    type: TransactionType,
+  ): Promise<Account> {
+    const account = await this.findById(accountId)
+
+    if (!account) {
+      throw new Error('Account not found')
+    }
+
+    const newBalance =
+      type === TransactionType.INCOME
+        ? account.balance + amount
+        : account.balance - amount
+
+    // Atualiza o saldo da conta
+    account.balance = newBalance
+
+    return account
   }
 
   async create(data: Prisma.AccountUncheckedCreateInput) {

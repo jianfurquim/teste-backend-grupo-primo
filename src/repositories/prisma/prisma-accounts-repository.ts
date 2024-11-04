@@ -1,5 +1,5 @@
 import { prisma } from '../../lib/prisma'
-import { Prisma } from '@prisma/client'
+import { Prisma, TransactionType } from '@prisma/client'
 import { AccountsRepository } from '../accounts-repository'
 
 export class PrismaAccountsRepository implements AccountsRepository {
@@ -51,6 +51,34 @@ export class PrismaAccountsRepository implements AccountsRepository {
     })
 
     return account
+  }
+
+  async changeBalance(
+    accountId: string,
+    amount: number,
+    type: TransactionType,
+  ) {
+    return await prisma.$transaction(async (tx) => {
+      const account = await tx.account.findUnique({
+        where: { id: accountId },
+      })
+
+      if (!account) {
+        throw new Error('Account not found')
+      }
+
+      const newBalance =
+        type === TransactionType.INCOME
+          ? account.balance + amount
+          : account.balance - amount
+
+      const updatedAccount = await tx.account.update({
+        where: { id: accountId },
+        data: { balance: newBalance },
+      })
+
+      return updatedAccount
+    })
   }
 
   async delete(id: string) {

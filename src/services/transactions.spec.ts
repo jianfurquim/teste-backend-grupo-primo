@@ -313,4 +313,77 @@ describe('Transactions Service', () => {
       }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError)
   })
+
+  it('should handle concurrent transactions correctly', async () => {
+    const user = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@gmail.com',
+      password: '123456',
+    })
+
+    const account = await accountsRepository.create({
+      name: 'Bank Account',
+      number: 1234,
+      balance: 5000.0,
+      userId: user.id,
+    })
+
+    const createDebitTransaction = async () => {
+      return sut.create({
+        amount: 1000.0,
+        transactionType: 'EXPENSE',
+        accountNumber: account.number,
+      })
+    }
+
+    const createCreditTransaction = async () => {
+      return sut.create({
+        amount: 500.0,
+        transactionType: 'INCOME',
+        accountNumber: account.number,
+      })
+    }
+
+    const debitPromise = createDebitTransaction()
+    const creditPromise = createCreditTransaction()
+
+    await Promise.all([debitPromise, creditPromise])
+
+    const updatedAccount = await accountsRepository.findByNumber(account.number)
+
+    expect(updatedAccount?.balance).toEqual(4500.0)
+  })
+
+  it('should throw an error when trying to create transaction for non-existent account', async () => {
+    await expect(
+      sut.create({
+        amount: 100.0,
+        transactionType: 'EXPENSE',
+        accountNumber: 9999,
+      }),
+    ).rejects.toThrow(ResourceNotFoundError)
+  })
+
+  it('should throw an error when the amount is negative', async () => {
+    const user = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@gmail.com',
+      password: '123456',
+    })
+
+    const account = await accountsRepository.create({
+      name: 'Bank Account',
+      number: 1234,
+      balance: 5000.0,
+      userId: user.id,
+    })
+
+    await expect(
+      sut.create({
+        amount: -100.0,
+        transactionType: 'EXPENSE',
+        accountNumber: account.number,
+      }),
+    ).rejects.toThrow(InvalidBalanceValueError)
+  })
 })
