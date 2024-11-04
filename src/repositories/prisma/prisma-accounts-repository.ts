@@ -35,6 +35,16 @@ export class PrismaAccountsRepository implements AccountsRepository {
     return accounts
   }
 
+  async findManyByUserIdNoPaginate(userId: string) {
+    const accounts = await prisma.account.findMany({
+      where: {
+        userId,
+      },
+    })
+
+    return accounts
+  }
+
   async create(data: Prisma.AccountUncheckedCreateInput) {
     const account = await prisma.account.create({
       data,

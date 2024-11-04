@@ -31,6 +31,10 @@ export class InMemoryAccountsRepository implements AccountsRepository {
       .slice((page - 1) * 20, page * 20)
   }
 
+  async findManyByUserIdNoPaginate(userId: string) {
+    return this.items.filter((item) => item.userId === userId)
+  }
+
   async create(data: Prisma.AccountUncheckedCreateInput) {
     const account = {
       id: randomUUID(),
