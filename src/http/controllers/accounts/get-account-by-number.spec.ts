@@ -34,9 +34,9 @@ describe('Get Account using account Number (E2E)', () => {
     expect(response.body).toEqual({
       message: expect.any(String),
       issues: {
-        id: expect.any(String),
         account: expect.any(String),
         number: expect.any(Number),
+        balance: expect.any(Number),
       },
     })
   })

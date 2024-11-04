@@ -23,9 +23,9 @@ export async function getAccountByNumber(
     return replay.status(202).send({
       message: 'Your Account.',
       issues: {
-        id: account.id,
         account: account.name,
         number: account.number,
+        balance: account.balance,
       },
     })
   } catch (err) {
