@@ -32,7 +32,7 @@
 - Padrões
   - SOLID
 
-### Solução p/ concorrência
+### Solução para concorrência
 
 Para lidar com a concorrência foi utilizado os mecanismos de LOCK e TRANSACTION do Prisma.
 
@@ -93,6 +93,8 @@ npm run start
 ```
 
 ## Documentação da Aplicação
+
+Após a executar o projeto, acesse o link.
 
 
 - [Documentation](http://localhost:3333/docs)
